@@ -1,3 +1,4 @@
 opencv-python
 mediapipe
 numpy
+opencv-python-headless
