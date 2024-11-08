@@ -36,7 +36,7 @@ pose = mp_pose.Pose()
 if __name__ == "__main__":
 
     # Change the index to 1 for external camera, or try other indices if needed
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
         print("Error: Could not open video.")
