@@ -1,6 +1,6 @@
 {
   "name": "Python 3",
-  "image": "mcr.microsoft.com/devcontainers/python:3.9-bullseye",  // Changed Python version to 3.9
+  "image": "mcr.microsoft.com/devcontainers/python:3.9-bullseye",  // Use Python 3.9 for stability
   "customizations": {
     "codespaces": {
       "openFiles": [
@@ -17,7 +17,7 @@
     }
   },
   "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; sudo apt install -y libsm6 libxext6 libxrender-dev; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
-  "postAttachCommand": "pip install opencv-python",  // Ensure OpenCV is installed after attaching
+  "postAttachCommand": "pip install opencv-python==4.6.0.66",  // Install a known working OpenCV version
   "portsAttributes": {
     "8501": {
       "label": "Application",
