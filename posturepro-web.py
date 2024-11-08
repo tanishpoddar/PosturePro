@@ -3,7 +3,6 @@ import time
 import math as m
 import mediapipe as mp
 import streamlit as st
-import numpy as np
 
 def findDistance(x1, y1, x2, y2):
     dist = m.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
@@ -16,9 +15,8 @@ def findAngle(x1, y1, x2, y2):
 
 def sendWarning():
     # Implement your warning mechanism (e.g., sound alert or message display)
-    st.warning("Warning: Bad posture detected for too long!")
+    print("Warning: Bad posture detected for too long!")
 
-# Initialize variables
 good_frames = 0
 bad_frames = 0
 
@@ -35,108 +33,114 @@ pink = (255, 0, 255)
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 
-st.title("Posture Detection App")
+if __name__ == "__main__":
 
-# Create a placeholder for video frames
-frame_placeholder = st.empty()
+    # Change the index to 1 for external camera, or try other indices if needed
+    cap = cv2.VideoCapture(1)
 
-# Start the webcam
-cap = cv2.VideoCapture(1)
+    if not cap.isOpened():
+        print("Error: Could not open video.")
+        exit()
 
-if not cap.isOpened():
-    st.error("Error: Could not open video.")
-    st.stop()
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_size = (width, height)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
-fps = int(cap.get(cv2.CAP_PROP_FPS))
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-frame_size = (width, height)
+    video_output = cv2.VideoWriter('output.mp4', fourcc, fps, frame_size)
 
-# Main loop
-while True:
-    success, image = cap.read()
-    if not success:
-        st.error("Skipping empty frame.")
-        continue  # Skip empty frames
+    # Set up the Streamlit page
+    st.title('Posture Detection')
+    st.sidebar.title('Settings')
 
-    # Convert the image color space
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    keypoints = pose.process(image_rgb)
+    while True:
 
-    # Check if pose landmarks are detected
-    if not keypoints.pose_landmarks:
-        cv2.putText(image, "No pose detected", (10, 30), font, 0.9, red, 2)
-        frame_placeholder.image(image, channels="BGR", use_column_width=True)
-        time.sleep(0.1)
-        continue
+        success, image = cap.read()
+        if not success:
+            print("Skipping empty frame.")
+            continue  # Continue to the next frame if the current one is empty
 
-    lm = keypoints.pose_landmarks
-    lmPose = mp_pose.PoseLandmark
+        # Convert the image color space
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        keypoints = pose.process(image_rgb)
 
-    h, w = image.shape[:2]
+        # Check if pose landmarks are detected
+        if not keypoints.pose_landmarks:
+            cv2.putText(image, "No pose detected", (10, 30), font, 0.9, red, 2)
+            st.image(image, channels="BGR", use_column_width=True)
+            if cv2.waitKey(5) & 0xFF == ord('q'):
+                break
+            continue
 
-    # Calculate relevant keypoints
-    try:
-        l_shldr_x = int(lm.landmark[lmPose.LEFT_SHOULDER].x * w)
-        l_shldr_y = int(lm.landmark[lmPose.LEFT_SHOULDER].y * h)
-        r_shldr_x = int(lm.landmark[lmPose.RIGHT_SHOULDER].x * w)
-        r_shldr_y = int(lm.landmark[lmPose.RIGHT_SHOULDER].y * h)
-        l_ear_x = int(lm.landmark[lmPose.LEFT_EAR].x * w)
-        l_ear_y = int(lm.landmark[lmPose.LEFT_EAR].y * h)
-        l_hip_x = int(lm.landmark[lmPose.LEFT_HIP].x * w)
-        l_hip_y = int(lm.landmark[lmPose.LEFT_HIP].y * h)
+        lm = keypoints.pose_landmarks
+        lmPose = mp_pose.PoseLandmark
 
-        offset = findDistance(l_shldr_x, l_shldr_y, r_shldr_x, r_shldr_y)
-        if offset < 100:
-            cv2.putText(image, str(int(offset)) + ' Aligned', (w - 150, 30), font, 0.9, green, 2)
-        else:
-            cv2.putText(image, str(int(offset)) + ' Not Aligned', (w - 150, 30), font, 0.9, red, 2)
+        h, w = image.shape[:2]
 
-        neck_inclination = findAngle(l_shldr_x, l_shldr_y, l_ear_x, l_ear_y)
-        torso_inclination = findAngle(l_hip_x, l_hip_y, l_shldr_x, l_shldr_y)
+        # Calculate relevant keypoints
+        try:
+            l_shldr_x = int(lm.landmark[lmPose.LEFT_SHOULDER].x * w)
+            l_shldr_y = int(lm.landmark[lmPose.LEFT_SHOULDER].y * h)
+            r_shldr_x = int(lm.landmark[lmPose.RIGHT_SHOULDER].x * w)
+            r_shldr_y = int(lm.landmark[lmPose.RIGHT_SHOULDER].y * h)
+            l_ear_x = int(lm.landmark[lmPose.LEFT_EAR].x * w)
+            l_ear_y = int(lm.landmark[lmPose.LEFT_EAR].y * h)
+            l_hip_x = int(lm.landmark[lmPose.LEFT_HIP].x * w)
+            l_hip_y = int(lm.landmark[lmPose.LEFT_HIP].y * h)
 
-        angle_text_string = f'Neck : {int(neck_inclination)}  Torso : {int(torso_inclination)}'
+            offset = findDistance(l_shldr_x, l_shldr_y, r_shldr_x, r_shldr_y)
+            if offset < 100:
+                cv2.putText(image, str(int(offset)) + ' Aligned', (w - 150, 30), font, 0.9, green, 2)
+            else:
+                cv2.putText(image, str(int(offset)) + ' Not Aligned', (w - 150, 30), font, 0.9, red, 2)
 
-        if neck_inclination < 40 and torso_inclination < 10:
-            bad_frames = 0
-            good_frames += 1
-            color = light_green
-        else:
-            good_frames = 0
-            bad_frames += 1
-            color = red
+            neck_inclination = findAngle(l_shldr_x, l_shldr_y, l_ear_x, l_ear_y)
+            torso_inclination = findAngle(l_hip_x, l_hip_y, l_shldr_x, l_shldr_y)
 
-        cv2.putText(image, angle_text_string, (10, 30), font, 0.9, color, 2)
+            angle_text_string = f'Neck : {int(neck_inclination)}  Torso : {int(torso_inclination)}'
 
-        good_time = (1 / fps) * good_frames
-        bad_time = (1 / fps) * bad_frames
+            if neck_inclination < 40 and torso_inclination < 10:
+                bad_frames = 0
+                good_frames += 1
+                color = light_green
+            else:
+                good_frames = 0
+                bad_frames += 1
+                color = red
 
-        if bad_time > 180:
-            sendWarning()
+            cv2.putText(image, angle_text_string, (10, 30), font, 0.9, color, 2)
 
-        if good_time > 0:
-            cv2.putText(image, f'Good Posture Time: {round(good_time, 1)}s', (10, h - 20), font, 0.9, green, 2)
-        else:
-            cv2.putText(image, f'Bad Posture Time: {round(bad_time, 1)}s', (10, h - 20), font, 0.9, red, 2)
+            good_time = (1 / fps) * good_frames
+            bad_time = (1 / fps) * bad_frames
 
-        # Draw landmarks and lines on the image
-        cv2.circle(image, (l_shldr_x, l_shldr_y), 7, yellow, -1)
-        cv2.circle(image, (l_ear_x, l_ear_y), 7, yellow, -1)
-        cv2.circle(image, (r_shldr_x, r_shldr_y), 7, pink, -1)
-        cv2.circle(image, (l_hip_x, l_hip_y), 7, yellow, -1)
-        cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), color, 4)
-        cv2.line(image, (l_hip_x, l_hip_y), (l_shldr_x, l_shldr_y), color, 4)
+            if bad_time > 180:
+                sendWarning()
 
-    except Exception as e:
-        st.error(f"Error: {e}")
+            if good_time > 0:
+                cv2.putText(image, f'Good Posture Time: {round(good_time, 1)}s', (10, h - 20), font, 0.9, green, 2)
+            else:
+                cv2.putText(image, f'Bad Posture Time: {round(bad_time, 1)}s', (10, h - 20), font, 0.9, red, 2)
 
-    # Show the frame in Streamlit
-    frame_placeholder.image(image, channels="BGR", use_column_width=True)
-    time.sleep(1 / fps)
+            # Draw landmarks and lines on the image
+            cv2.circle(image, (l_shldr_x, l_shldr_y), 7, yellow, -1)
+            cv2.circle(image, (l_ear_x, l_ear_y), 7, yellow, -1)
+            cv2.circle(image, (r_shldr_x, r_shldr_y), 7, pink, -1)
+            cv2.circle(image, (l_hip_x, l_hip_y), 7, yellow, -1)
+            cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), color, 4)
+            cv2.line(image, (l_hip_x, l_hip_y), (l_shldr_x, l_shldr_y), color, 4)
 
-    # Exit condition: Press 'q' to stop the loop
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        except Exception as e:
+            print(f"Error: {e}")
 
-cap.release()
-cv2.destroyAllWindows()
+        video_output.write(image)
+
+        # Display the image using Streamlit
+        st.image(image, channels="BGR", use_column_width=True)
+
+        # Exit condition: Press 'q' to exit
+        if cv2.waitKey(5) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    video_output.release()
