@@ -1,7 +1,6 @@
 {
   "name": "Python 3",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
+  "image": "mcr.microsoft.com/devcontainers/python:3.9-bullseye",  // Changed Python version to 3.9
   "customizations": {
     "codespaces": {
       "openFiles": [
@@ -17,10 +16,8 @@
       ]
     }
   },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
-  "postAttachCommand": {
-    "server": "streamlit run posturepro-web.py --server.enableCORS false --server.enableXsrfProtection false"
-  },
+  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; sudo apt install -y libsm6 libxext6 libxrender-dev; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
+  "postAttachCommand": "pip install opencv-python",  // Ensure OpenCV is installed after attaching
   "portsAttributes": {
     "8501": {
       "label": "Application",
