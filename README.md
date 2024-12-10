@@ -26,7 +26,7 @@ The project contains two main applications:
    - Browser-based solution using MediaPipe
    - No installation required
    - Cross-platform compatibility
-   - [Setup Instructions](./web-app/README.md)
+   - [Setup Instructions](./docs/README.md)
 
 ## How It Works
 
