@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posture Pro | Smart Posture Detection</title>
+    <!-- MediaPipe Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js" crossorigin="anonymous"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+
+        <main class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h1>PosturePro</h1>
+                    <p class="subtitle">Keep your posture perfect with real-time AI monitoring</p>
+                </div>
+
+                <div class="video-container">
+                    <video id="video" playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div class="overlay-message" id="loadingMessage">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="startBtn" class="btn primary">
+                        <i class="fas fa-play"></i> Start Camera
+                    </button>
+                    <button id="stopBtn" class="btn danger" disabled>
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-angle-up"></i>
+                        <div class="stat-content">
+                            <h3>Neck Inclination</h3>
+                            <span id="neckAngle">0°</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-arrows-alt-v"></i>
+                        <div class="stat-content">
+                            <h3>Torso Inclination</h3>
+                            <span id="torsoAngle">0°</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-arrows-alt-h"></i>
+                        <div class="stat-content">
+                            <h3>Shoulder Alignment</h3>
+                            <span id="shoulderOffset">0px</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div class="stat-content">
+                            <h3>Posture Timer</h3>
+                            <span id="postureTimer">0s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div id="warning" class="warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            Warning: Bad posture detected for too long!
+        </div>
+
+        <footer class="footer">
+            <p>Made with <i class="fas fa-heart pulse"></i> by 
+                <a href="https://github.com/tanishpoddar" target="_blank">Tanish Poddar</a>, 
+                <a href="https://github.com/Ananya020" target="_blank">Ananya Agarwal</a> & 
+                <a href="https://github.com/nityaa19" target="_blank">Nityanand Kumar</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
